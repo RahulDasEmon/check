@@ -4968,6 +4968,29 @@ self.addEventListener('fetch', event => {
     }
   });
 })();
+
+// ── Live-sync theme & accent from editor (storage event fires when another tab/page writes localStorage) ──
+window.addEventListener('storage', function(e) {
+  if (e.key === 'eduyomi-theme' || e.key === 'ej-synced-theme' || e.key === 'ej-theme') {
+    const theme = e.newValue;
+    if (theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      if (typeof updateThemeIcon === 'function') updateThemeIcon(theme);
+    }
+  }
+  if (e.key === 'eduyomi-accent' || e.key === 'ej-synced-accent' || e.key === 'ej-accent') {
+    const accent = e.newValue;
+    if (accent) {
+      document.documentElement.style.setProperty('--accent-custom', accent);
+      if (typeof updateLogoAccentFilter === 'function') updateLogoAccentFilter(accent);
+      currentAccentHex = accent;
+      document.querySelectorAll('.accent-swatch').forEach(s => {
+        const bg = s.style.background || s.style.backgroundColor;
+        s.classList.toggle('active', bg.toLowerCase() === accent.toLowerCase() || bg.toLowerCase() === hexToRgb(accent));
+      });
+    }
+  }
+});
 </script>
 
 <!-- SOURCE EDITOR OVERLAY -->
